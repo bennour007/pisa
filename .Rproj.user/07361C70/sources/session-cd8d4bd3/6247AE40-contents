@@ -1,0 +1,46 @@
+renamer <- function(x){
+  x %>% 
+    rename(questions = "...1")
+}
+
+
+#### function that returns field questions to filter with
+
+field_filter <- function(all_cols, field){
+  all_cols[all_cols %in% pull(questions_only_mrs[[field]], questions)] %>% 
+    return()
+}
+
+#### a function that creats 4 data sets 
+
+field_data_creator_1 <- function(field, data, all_cols){
+  data %>% 
+    select(
+      "CNT", 
+      "CNTSCHID", 
+      all_of(field_filter(all_cols, field))
+    )
+}
+
+
+field_data_creator_2 <- function(field, data){
+  f <- field %>% pull(questions)
+  data %>% 
+    select(
+      "CNT", 
+      "CNTSCHID", 
+      all_of(f)
+    )
+}
+select_n_write <- function(data, file, cols){
+  ### can add a filter function here
+  x <- data.table::fread(data) %>%
+    select(
+      CNT,
+      CNTSCHID,
+      all_of(cols)
+    ) 
+  data.table::fwrite(x, paste0("data/", file))
+  rm(x)
+  
+}

@@ -1,0 +1,35 @@
+library(reticulate)
+
+reticulate::use_condaenv("papyr2", required = T)
+
+py_run_file(file = "the_paper/call_py_objects.py")
+
+res_hun <- py$res_hun
+
+################################################################################
+# model_1
+library(tidyverse)
+
+model_names <- c("res1_hun", "res2_hun", "res3_hun", "res4_hun")
+
+map2(
+  res_hun,
+  model_names,
+  function(l,n){
+    l[[n]] <- l[[n]] %>% 
+      as_data_frame()
+  }
+  
+)
+
+results_all <-res_hun %>% 
+  as_tibble() %>% 
+  mutate(
+    result = c("alpha", "beta", "delta", "gamma", "lamda", "residuals", "frontier", "unconditional_expected_inefficiency", "technical_inefficiency")
+  ) %>% 
+  relocate(result)
+
+results_all %>% 
+  
+  
+  

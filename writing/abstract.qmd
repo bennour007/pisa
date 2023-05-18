@@ -1,0 +1,22 @@
+---
+title: "Efficiency of Schools in the Visegrad Region : a StoNED Approach"
+format: pdf
+editor: visual
+bibliography: "../refs/refs.bib"
+author:
+  - name: BENNOUR Mohamed Hsin, University of Pécs
+---
+
+## Abstract
+
+The subject of school efficiency has attracted lots of literature attention, as school-level inefficiencies can have serious negative consequences on the development of human capital and the labor market. In this paper, we examine the efficiency of a sample of a combined 686 schools in the Visegrad countries using the 2018 PISA survey data. We employ an innovative nonparametric approach that combines both the benefits of Data Envelopment Analysis (DEA) and Stochastic Frontier Analysis (SFA), namely the Stochastic Nonparametric Envelopment of Data (henceforth StoNED) developed in @kuosmanen2012. We construct four different models to control for return to scale, contextual (nondiscretionary) input variables, as well as the inclusion of undesirable variables, and accounting for multiple outputs. These models are applied country-wise and across all four countries to compare their efficiency frontiers and derive policy recommendations.
+
+## 
+
+## 
+
+## 
+
+## 
+
+## References
