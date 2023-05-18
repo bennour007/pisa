@@ -1,8 +1,0 @@
-import pickle
-import numpy as np
-
-file = "the_paper/res_hun"
-open_file = open(file, "rb")
-res_hun = pickle.load(open_file)
-open_file.close()
-
