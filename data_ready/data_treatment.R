@@ -70,7 +70,8 @@ data_clean <- data_raw %>%
     ratio_f2m = students_female / students_male,
     total_teachers = teachers_ft + teachers_pt,
     ratio_pt2ft = teachers_pt / teachers_ft,
-    ratio_t2s = total_students / total_teachers, ## change the name here and in the modeling
+    ratio_t2s = total_teachers / total_students, ## change the name here and in the modeling
+    ratio_s2t = total_students / total_teachers,
     bol_extra_acts = if_else(
       SC053Q01TA == 1 | SC053Q02TA == 1 | SC053Q03TA == 1 | SC053Q04TA == 1 | 
         SC053Q12IA == 1 | SC053Q13IA == 1 | SC053Q09TA == 1 | SC053Q10TA == 1 |
