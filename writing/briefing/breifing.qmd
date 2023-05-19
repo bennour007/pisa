@@ -1,0 +1,161 @@
+---
+title: "Untitled"
+format: 
+  pdf:
+    include-in-header: 
+      text: |
+        \usepackage{lscape}
+        \newcommand{\blandscape}{\begin{landscape}}
+        \newcommand{\elandscape}{\end{landscape}}
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## summary stats
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+library(tidyverse)
+library(kableExtra)
+
+data <- read_csv("../../data_ready/data_ready.csv") %>% 
+  # read_csv(file = "data_ready/data_ready.csv") %>% 
+  mutate(
+    across(
+      everything(), 
+      function(x){
+        ifelse(is.infinite(x) == T, NA, x)
+      }
+    )
+  ) %>% 
+  na.omit() %>% 
+  select(- ends_with("cog"))
+
+```
+
+```{r, echo=F}
+data %>% 
+  group_by(CNT) %>% 
+  count() %>% 
+  kableExtra::kable(format = "latex")
+
+```
+
+\blandscape
+
+```{r echo = F, message=F, warning=F}
+
+data %>% 
+  select(-CNTSCHID) %>% 
+  pivot_longer(2:25) %>% 
+  group_by(CNT, name) %>% 
+  summarise(
+    mean = mean(value, na.rm = T),
+    median = median(value, na.rm = T),
+    min = min(value, na.rm = T),
+    max = max(value, na.rm = T)
+    ) %>% 
+  ungroup() %>% 
+  pivot_longer(mean:max, names_to = "metric", values_to = 'value') %>% 
+  unite("speci", c("CNT", "metric")) %>% 
+  pivot_wider(names_from = "speci", values_from = "value") %>% 
+  kable(booktabs = T) %>% 
+    add_header_above(
+      c("Country"=1, "Czech Republic"=4, "Hungary"=4, "Poland"=4, "Slovak Republic"=4)
+    ) %>% 
+    kable_styling(
+      latex_options = "scale_down"
+    )
+    
+
+
+```
+
+\elandscape
+
+```{r, echo = F, eval=FALSE}
+data %>% 
+  select(-CNTSCHID) %>% 
+  group_by(CNT) %>% 
+  summarise_at(
+    vars(bol_location:dropout_rate),
+    mean,
+    na.rm = T
+  ) %>% 
+  pivot_longer(
+    bol_location:dropout_rate
+  ) %>% 
+  pivot_wider(names_from = CNT) %>% 
+  kableExtra::kable()
+
+
+data %>% 
+  select(-CNTSCHID) %>% 
+  group_by(CNT) %>% 
+  summarise_at(
+    vars(bol_location:dropout_rate),
+    median,
+    na.rm = T
+  ) %>% 
+  pivot_longer(
+    bol_location:dropout_rate
+  ) %>% 
+  pivot_wider(names_from = CNT) %>% 
+  kableExtra::kable()
+```
+
+```{r ,echo = F}
+
+data %>% 
+  select(
+    CNT, 
+    CNTSCHID, 
+    starts_with('avg'),
+    starts_with('med')
+  ) %>% 
+  pivot_longer(3:8) %>% 
+  mutate(
+    metric = name,
+    name = str_remove_all(name, "avg_"),
+    name = str_remove_all(name, "med_"),
+    metric = str_remove_all(metric, "_math"),
+    metric = str_remove_all(metric, "_read"),
+    metric = str_remove_all(metric, "_science")
+  ) %>% 
+  filter(
+    metric == "avg"
+  ) %>% 
+  ggplot()+
+  geom_density(
+    aes(
+      x = value,
+      fill = name
+    )
+  )+
+  facet_grid(CNT~name)
+  
+ 
+```
+
+```{r echo = F}
+
+data %>% 
+  select(
+    CNT,
+    total_students,
+    ratio_f2m, 
+    ratio_s2t,
+    ratio_ft2pt
+  ) %>% 
+  pivot_longer(2:5) %>% 
+  ggplot() +
+  geom_density(
+    aes(
+      x = value,
+      fill = name
+    )
+  ) +
+  facet_grid(CNT~name, scales = "free")
+  
+```

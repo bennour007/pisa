@@ -69,7 +69,8 @@ data_clean <- data_raw %>%
     total_students = students_male + students_female,
     ratio_f2m = students_female / students_male,
     total_teachers = teachers_ft + teachers_pt,
-    ratio_pt2ft = teachers_pt / teachers_ft,
+    ratio_pt2ft = teachers_pt / teachers_ft, ## added this variable, take it into account in modeling
+    ratio_ft2pt = teachers_ft / teachers_pt,
     ratio_t2s = total_teachers / total_students, ## change the name here and in the modeling
     ratio_s2t = total_students / total_teachers,
     bol_extra_acts = if_else(
@@ -96,7 +97,9 @@ data_clean <- data_raw %>%
     total_teachers,
     ratio_f2m,
     ratio_pt2ft,
+    ratio_ft2pt,
     ratio_t2s,
+    ratio_s2t,
     ap_parental_eng,
     dropout_rate,
     starts_with("avg"),

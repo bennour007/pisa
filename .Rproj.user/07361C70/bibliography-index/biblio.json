@@ -1,32 +1,4 @@
 {
-    "sources": [
-        {
-            "author": [
-                {
-                    "family": "Kuosmanen",
-                    "given": "Timo"
-                },
-                {
-                    "family": "Kortelainen",
-                    "given": "Mika"
-                }
-            ],
-            "container-title": "Journal of productivity analysis",
-            "id": "kuosmanen2012",
-            "issued": {
-                "date-parts": [
-                    [
-                        2012
-                    ]
-                ]
-            },
-            "page": "11-28",
-            "publisher": "Springer",
-            "title": "Stochastic non-smooth envelopment of data: Semi-parametric frontier estimation subject to shape constraints",
-            "title-short": "Stochastic non-smooth envelopment of data",
-            "type": "article-journal",
-            "volume": "38"
-        }
-    ],
+    "sources": [],
     "project_biblios": []
 }
