@@ -1,0 +1,23 @@
+---
+title: "A two-stage Analysis of the world's digital economy: a Directional Distance Function approach with random noise"
+format: pdf
+editor: visual
+bibliography: "refs.bib"
+author: BENNOUR Mohamed Hsin
+---
+
+@lafuente2022 provided a two-stage DEA estimator to assess the efficiency of the digital platform economy around the world. Using output oriented DEA programs over two stages, where thee first stage efficiency estimates are an input for the second stage DEA program. The authors then construct a composite efficiency score by multiplying the DEA scores of both stages and proceed to use the weights in stage 1 and 2 as well as the DEA scores obtained from both programs to cluster the studied countries and derive their policy priorities.
+
+However as clever as the paper in discussion was, multiple suggestions can be made :
+
+-   Accounting for random noise: Given the staged nature of the methodology it makes sense to incorporate for noise to account for any inobservable variation. This can be done by using the StoNED (Stochastic nonparametric envelopment of data @kuosmanen2012) framework and estimating the DEA frontier with CNLS (nonparametric least-squares regression @kuosmanen2010).
+
+    -   Using StoNED will allow us not only to incorporate deviations from the frontier to inefficiency only as in the case with DEA but also to noise.
+
+-   Unify both stages into one indicator, by using Directional Distance Functions and assigning specific directional vectors for the variables in each stage.
+
+    -   Another Idea would be to incorporate noise in the first stage (with StoNED) which yields inefficiency estimates then use them in a second stage as undesirable inputs(i.e simultaneously expand outputs and decrease inefficiency and noise from the first stage)
+
+-   Incorporate a feedback network; i.e: a network where both stages are simultaneously feeding inputs to each other.
+
+References

@@ -45,7 +45,7 @@ data_raw <- data %>%
     bol_career_guidance,
     dropout_rate,
     starts_with("avg"),
-    starts_with("med"),
+    # starts_with("med"),
     starts_with("SC053"),
     starts_with("SC064")
   )
@@ -89,22 +89,46 @@ data_clean <- data_raw %>%
     bol_competition,
     bol_career_guidance,
     funding,
-    students_male,
+    students_male, # loggs start here
     students_female,
     teachers_ft, 
     teachers_pt,
     total_students,
     total_teachers,
     ratio_f2m,
-    ratio_pt2ft,
     ratio_ft2pt,
-    ratio_t2s,
     ratio_s2t,
     ap_parental_eng,
     dropout_rate,
-    starts_with("avg"),
-    starts_with("med")
+    starts_with("avg")
+    # starts_with("med")
   )
+
+
+# logged 
+data_loged <- data_clean %>% 
+  mutate(
+    across(
+      8:last_col(),
+      log
+    )
+  ) 
+
+# Remove NaN, and Inf values, will cause issues in the analysis phase.
+data_loged[sapply(data_loged, is.infinite)] <- NA
+data_loged[sapply(data_loged, is.nan)] <- NA
+
+
+# data_loged %>% 
+#   group_by(CNT) %>% 
+#   summarise(n())
+#   filter(
+#   if_any(
+#     everything(),
+#     function(x){ x %in% c(NaN, Inf)}
+#   )
+# )
+
 
 data_clean %>% 
   write_csv("data_ready/data_ready.csv")
