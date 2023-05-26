@@ -5,6 +5,12 @@ import os
 
 
 
+file_main = "modeling/res_all"
+open_file_main = open(file_main, "rb")
+res_all = pickle.load(open_file_main)
+open_file_main.close()
+        
+
 path = "modeling/results"
 files = os.listdir(path)
 full_files = []
@@ -12,10 +18,7 @@ full_files = []
 for fi in files:
   full_files.append(path + str('/') + fi)
   
-# file = "modeling/res_hun"
-# open_file = open(file, "rb")
-# res_hun = pickle.load(open_file)
-# open_file.close()
+
 
 l = {}
 
@@ -23,3 +26,6 @@ l = {}
 for (file, fifo) in zip(full_files, files):
     with open(file, "rb") as f:
         l[fifo] = pickle.load(f)
+        
+
+

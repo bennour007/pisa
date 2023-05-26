@@ -1,0 +1,414 @@
+---
+title: Efficiency of Schools in the Visegrad Region, a StoNED Approach
+format: pdf
+editor: visual
+editor_options: 
+  chunk_output_type: console
+bibliography: "../../refs/refs.bib"
+author:
+  - name: BENNOUR Mohamed Hsin, University of Pécs
+---
+
+## Abstract
+
+The subject of school efficiency has attracted lots of literature attention, as school-level inefficiencies can have serious negative consequences on the development of human capital and the labor market. In this paper, we examine the efficiency of a sample of a combined 686 schools in the Visegrad countries using the 2018 PISA survey data. We employ an innovative nonparametric approach that combines both the benefits of Data Envelopment Analysis (DEA) and Stochastic Frontier Analysis (SFA), namely the Stochastic Nonparametric Envelopment of Data (henceforth StoNED) developed in @kuosmanen2012. We construct four different models to control for return to scale, contextual (nondiscretionary) input variables, as well as the inclusion of undesirable variables, and accounting for multiple outputs. These models are applied country-wise and across all four countries to compare their efficiency frontiers and derive policy recommendations.
+
+## Introduction
+
+In some empirical applications, researchers often seek to analyze the performance of certain Decision-Making Units (hereafter as DMU, eg: a school). These DMUs are often characterized by a production process that takes a certain level of resources (or inputs) and transforms them to a certain level of goods (or outputs). In this context researchers model productivity and efficiency as metrics of performance, by analyzing the production process which yields a production frontier. The frontier describes the feasible level of outputs for each level of inputs, this frontier reflects the state of technology for a given sector or industry.
+
+Educational institutions can be considered (from an economic point of view) as production units (DMUs), and can be evaluated in terms of efficiency. Efficiency can be analyzed from various perspectives. School-level inefficiencies and mismanagement can have serious repercussions for human resource development and labor market outcomes as a recent study [@Bhutoria2022] highlights.
+
+There are many papers that are measuring the efficiency within the sector of education, see for example the excellent review of @Witte2017. To the best of our knowledge, no paper among these concentrates on the Visegrad (V4) countries, although the countries are historically linked and followed similar development paths and it seems useful to compare their education policies and performance (CITE: https://www.researchgate.net/publication/308994770_Education_policies_and_performance_of_the_Visegrad_countries_in_light_of_their_OECD_membership_a\_comparative_study) In this paper we focus on answering the question of what drives the efficiency of schools in the Visegrad countries in terms of standardized test performance? The efficiency analysis will be based on PISA 2018 data and the novel StoNED framework.
+
+## Methods
+
+The early literature provided two major directions in performance analysis. The first is the "Stochastic Frontier Analysis" (SFA). The second direction is the non-parametric approach, leading to the development of "Data Envelopment Analysis" (DEA) and "Full Disposal Hull" (FDH). DEA and FDH gained a large theoretical and empirical literature grounds since they were introduced (DEA and FDH are considered the same technique, they are usually both referred to as DEA).
+
+Both approaches have clear advantages and disadvantages. The main shortcoming of DEA is that all deviations from the frontier are treated as inefficiency. The strength of SFA is its probabilistic nature. It allows for decomposing deviations into an inefficiency term and noise term. However development on convex nonparametric least squares (CNLS) have led to the full integration of DEA and SFA into a unified framework of productivity analysis, which we refer to as Stochastic Nonparametric Envelopment of Data (StoNED). @kous2015
+
+Formulation of a StoNED model requires identifying input, output and enviromnetal variables, and solving an optimization algorithm, depending on various possible assumptions.
+
+SOME UGLY ASS EQUATIONS MAYBE?
+
+Creators of the StoNED framework provide GAMS and MATLAB code originally, there exists a Python package (REFERENCE) for implementing different models.
+
+In the next chapter we use nonparametric envelopment techniques to estimate a production (education) frontier for each Visegrad country, and for the region as a whole (metafrontier what he called it?).
+
+## Data
+
+Data is extracted from the 2018 PISA survey, it contains information on schools (and their environments), teachers, and students (and parental engagement). Data analysis and exploration, visualisation was done in R, while the frontiers were estimated in Python.
+
+### Summary statistics of the data
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+library(tidyverse)
+
+data <- read_csv("../../modeling/analysis_data.csv") %>%
+  # read_csv(file = "modeling/analysis_data.csv") %>%
+  select(- ends_with("cog"), - starts_with("med"))
+ 
+```
+
+Our sample is constituted of 623 schools decomposed per the table below.
+
+```{r, echo=F, warning=FALSE, message=FALSE}
+data %>% 
+  group_by(CNT) %>% 
+  count() %>% 
+  kableExtra::kable(format = "latex", booktab = T) 
+
+```
+
+The variables we initially decided to use are the following:
+
+-   Students:
+
+    -   `total_sudents`
+
+    -   gender characteristics : ``` students_male (number of),``students_female (number of) ```
+
+    -   Parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education)
+
+-   Schools:
+
+    -   School characteristcs: `ratio_f2m (ratio of female to male students), ratio_pt2ft (part time to full time tachers), ratio_t2s (students per teacher), dropout_rate, funding (percentage of government funding)`
+
+-   Teachers:
+
+    -   `teachers_ft`(number of full timer teachers), `teachers_pt` (number of full timer teachers)
+
+    -   `total_teachers` : Total number of teachers
+
+-   Context:
+
+    -   Location `bol_locataion` : 1- school is in Urban area, 0- School is in Rural area
+
+    -   Extra activities : `bol_extra_acts` : 1- Yes there are official extra activities in the curricilum, 0- No
+
+    -   `bol_competition` : 1- There's at least another school in the area, 0- There's no other schools in the area
+
+    -   `bol_career_guidance` : 1- There's an official career guidance curriculum in the school, 0- There's not
+
+Mean and standard deviation tables for each variable per country is depicted as follows:
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  summarise(
+    across(
+      everything(),
+      mean,
+      na.rm = T
+    )
+  ) %>% 
+  pivot_longer(
+    2:ncol(.)
+  ) %>% 
+  pivot_wider(names_from = CNT) %>% 
+  kableExtra::kable(
+    booktab = T, 
+    caption = "Table of means", 
+    digits = 3
+  )
+
+
+data %>%
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  summarise(
+    across(
+      everything(),
+      sd,
+      na.rm = T
+    )
+  ) %>% 
+  pivot_longer(
+    2:ncol(.)
+  ) %>% 
+  pivot_wider(names_from = CNT) %>% 
+  kableExtra::kable(
+    booktab = T, 
+    caption = "Table of standard deviation",
+    digits = 3
+  )
+```
+
+### Visualisations
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  mutate(
+    bol_location = as.character(bol_location)
+  ) %>% 
+  ggplot()+
+  geom_boxplot(
+    aes(
+      x = value,
+      y = bol_location,
+      fill = avg
+    )
+  )+
+  facet_grid(CNT~avg)+
+  labs(
+    title = "Average grad in the three subjects\n controlled by location",
+    x = "Average grade",
+    y = "Location"
+  )
+  
+```
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  mutate(
+    bol_competition = as.character(bol_competition),
+    value = log(value)
+  ) %>% 
+  ggplot()+
+  geom_boxplot(
+    aes(
+      x = value,
+      y = bol_competition,
+      fill = avg
+    )
+  )+
+  facet_grid(CNT~avg) +
+  labs(
+    title = "Average grades and Competition of school area",
+    subtitle = "Controlled by subject",
+    x = "Average grade",
+    y = "Competion"
+  )
+```
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  mutate(
+    bol_career_guidance = as.character(bol_career_guidance)
+  ) %>% 
+  ggplot()+
+  geom_boxplot(
+    aes(
+      x = value,
+      y = bol_career_guidance,
+      fill = avg
+    )
+  )+
+  facet_grid(CNT~avg)+
+  labs(
+    title = "Average grades and Career guidance",
+    x = 'Average Grade',
+    y = 'Formal Guidance'
+  )
+```
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  ggplot()+
+  geom_point(
+    aes(
+      x = value,
+      y = ratio_s2t,
+      color = avg
+    ),
+    size = 0.1,
+    alpha = 0.7
+  )+
+  facet_grid(CNT~avg)+
+  labs(
+    title = 'Averge Grades by the Students to Teacher Ratio',
+    x = "Average Grades",
+    y = "Students to Teacher Ratio"
+  )
+```
+
+```{r, echo = F, warning=FALSE, message=FALSE}
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+ 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  ggplot()+
+  geom_point(
+    aes(
+      x = value,
+      y = total_students,
+      color = avg
+    ),
+    size = 0.1,
+    alpha = 0.7
+  )+
+  facet_grid(CNT~avg) +
+  labs(
+    title = 'Total Number of Students and Average grades',
+    x = 'Average Grade',
+    y = 'Total Number of Students '
+  )
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  pivot_longer(
+    c(teachers_ft,teachers_pt),
+    names_to = "teachers",
+    values_to = 'teachers_num'
+  ) %>% 
+  ggplot()+
+  geom_point(
+    aes(
+      x = total_students,
+      y = teachers_num,
+      color = teachers
+    ),
+    size = 0.2,
+    alpha = 0.7
+  ) +
+  facet_grid(CNT~.) +
+  labs(
+    title = "Total Number of Students and Total Number of Teachers",
+    subtitle = "Controlled by Part time and Full time employment types", 
+    x = "Total Number of Students",
+    y = "Total Number of Teachers"
+  )
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  # pivot_longer(
+  #   c(teachers_ft,teachers_pt),
+  #   names_to = "teachers",
+  #   values_to = 'teachers_num'
+  # ) %>% 
+  ggplot()+
+  geom_point(
+    aes(
+      x = value,
+      y = dropout_rate,
+      color = avg
+    ),
+    size = 0.2,
+    alpha = 0.7
+  ) +
+  facet_grid(CNT~avg, scales = "free") +
+  labs(
+    title = "Average Grades and Dropout Rates",
+    x = "Average Grades",
+    y = "Dropout Rates"
+  )
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  pivot_longer(
+    c(ratio_s2t,total_students, ratio_f2m),
+    names_to = "students_ratios",
+    values_to = 'sr_vals'
+  ) %>%
+  ggplot()+
+  geom_point(
+    aes(
+      y = dropout_rate,
+      x = sr_vals,
+      color = students_ratios
+    ),
+    size = 0.2,
+    alpha = 0.7
+  ) +
+  facet_grid(CNT~students_ratios, scales = "free") +
+  labs(
+    title = "Dropout Rates and school/student characteristics",
+    x = "Dropout Rates",
+    y = ""
+  )
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+data %>% 
+  select(-CNTSCHID, -1) %>% 
+  group_by(CNT) %>% 
+  pivot_longer(
+    starts_with("avg"), 
+    names_to = 'avg'
+  ) %>% 
+  # pivot_longer(
+  #   c(teachers_ft,teachers_pt),
+  #   names_to = "teachers",
+  #   values_to = 'teachers_num'
+  # ) %>% 
+  ggplot()+
+  geom_point(
+    aes(
+      x = value,
+      y = ratio_s2t,
+      color = avg
+    ),
+    size = 0.2,
+    alpha = 0.7
+  ) +
+  facet_grid(CNT~avg, scales = "free") +
+  labs(
+    title = "Average Grades and Students to teachers Ratio",
+    x = "Average Grades",
+    y = "Students to teachers Ratio"
+  )
+
+```
+
+Results and discussion

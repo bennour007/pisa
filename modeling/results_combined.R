@@ -6,6 +6,8 @@ py_run_file(file = "modeling/call_py_objects.py")
 
 all_res <- py$l
 
+res_all <- py$res_all
+
 ################################################################################
 # model_1
 library(tidyverse)
@@ -56,11 +58,19 @@ results <- all_res_list %>%
 
 
 results %>% 
-  write_rds("modeling/results/all_results.rds")
+  write_rds("modeling/all_results.rds")
 
 
 
+res_all_clean <- res_all %>% 
+  map_depth(., 2, as_tibble) %>% 
+  as_tibble() %>% 
+  mutate(
+    result = c("alpha", "beta", "delta", "gamma", "lamda", "residuals", "frontier", "unconditional_expected_inefficiency", "technical_inefficiency")
+  ) %>% 
+  relocate(result)
 
-  
+res_all_clean %>% 
+  write_rds("modeling/meta_results.rds")
   
   

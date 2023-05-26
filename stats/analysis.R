@@ -1,95 +1,21 @@
 library(tidyverse)
 
 
+# all_results <- read_rds('modeling/results/all_models.rds')
 
-results <- read_rds("modeling/results/all_results.rds")
+  
+meta <- read_rds("modeling/meta_results.rds")
 
 data <- read_csv("data_ready/data_ready.csv")
 
 inputs <- c("total_students", "ratio_f2m", "ratio_s2t", "ratio_ft2pt")
 
+countries <- c("hun", "pol", "svk", "cze")
+
+source('stats/analysis_helpers.R')
+
 ### betas 
 
-beta_renamer <- function(x){
-  colnames(x) <- inputs
-  return(x)
-}
-
-synth <- function(x){
-  x %>% 
-    summarise(mean)
-}
-
-
-## hun
-
-
-
-beta_hun <- results %>% 
-  filter(country == 'hun' & result == 'beta') %>% 
-  select(res1:res4) %>% 
-  list() %>% 
-  flatten() %>% 
-  flatten() %>% 
-  map(
-    ., 
-    beta_renamer
-  ) %>% 
-  map2(.,
-       c(1:4),
-    function(x,y){
-      x %>% 
-        mutate(
-          model = glue::glue("res{y}")
-        )
-    }
-  ) %>% 
-  bind_rows() %>% 
-  group_by(model) %>% 
-  summarise(
-    across(
-      everything(),
-      mean
-    )
-  )
-
-
-
-
-suffering <- function(data, c, r) {
-  data %>% 
-    filter(
-      country == c & result == r
-    ) %>% 
-    select(res1:res4) %>% 
-    list() %>% 
-    flatten() %>% 
-    flatten() %>% 
-    map(
-      ., 
-      beta_renamer
-    ) %>% 
-    map2(.,
-         c(1:4),
-         function(x,y){
-           x %>% 
-             mutate(
-               model = glue::glue("res{y}")
-             )
-         }
-    ) %>% 
-    bind_rows() %>% 
-    group_by(model) %>% 
-    summarise(
-      across(
-        everything(),
-        mean
-      )
-    ) %>% 
-    ungroup()
-}
-
-countries <- c("hun", "pol", "svk", "cze")
 
 summary_beta <- map(
   countries,
@@ -107,103 +33,42 @@ summary_beta <- map(
     }
   ) %>% 
   bind_rows()
-  
+
+####################################
+## Save Betas
 
 summary_beta %>% 
-  group_by(country) %>% 
-  mutate(
-    across(
-      total_students:ratio_ft2pt,
-      sd
-    )
-  )
-
-
-suffering_ineff <- function(data, c, r) {
-  data %>% 
-    filter(
-      country == c & result == r
-    ) %>% 
-    select(res1:res4) %>% 
-    list() %>% 
-    flatten() %>% 
+  write_rds('stats/summary_beta.rds')
   
-    flatten() %>%
-    map2(.,
-         c(1:4),
-         function(x,y){
-           x %>%
-             mutate(
-               model = glue::glue("res{y}")
-             )
-         }
-    ) %>%
-    bind_rows() %>%
-    group_by(model) %>%
-    summarise(
-      across(
-        everything(),
-        mean
-      )
-    ) %>%
-    ungroup()
-}
 
 
-suffering_frontier <- function(data, c, r) {
-  data %>% 
-    filter(
-      country == c & result == r
-    ) %>% 
-    select(res1:res2) %>% 
-    list() %>% 
-    flatten() %>% 
-    
-    flatten() %>%
-    map2(.,
-         c(1:2),
-         function(x,y){
-           x %>%
-             mutate(
-               model = glue::glue("res{y}")
-             )
-         }
-    ) %>%
-    bind_rows() 
-    # group_by(model) %>%
-    # summarise(
-    #   across(
-    #     everything(),
-    #     mean
-    #   )
-    # ) %>%
-    # ungroup()
-}
 
-  map(
+################################################################################
+
+
+summary_school_inefficiencies <- map(
     countries,
     suffering_ineff,
     data = results,
     r = 'technical_inefficiency'
   ) %>% 
-    map2(
-      .,
-      countries, 
-      function(x,y){
-        x %>% 
-          mutate(country = y) %>% 
-          relocate(country)
-      }
-    ) %>% 
-    bind_rows()
-  
-  
-  
   map(
-    countries,
-    suffering_ineff,
-    data = results,
-    r = 'residuals'
+    .,
+    function(x){
+      x %>% 
+        mutate(
+          value = case_when(
+            model == "res1" ~ 2 - value,
+            model == "res2" ~ 2 - value,
+            model == "res3" ~ value,
+            model == "res4" ~ value
+          )
+        )
+    }
+  ) %>% 
+  map(
+    .,
+    ineff_summary
   ) %>% 
     map2(
       .,
@@ -216,58 +81,153 @@ suffering_frontier <- function(data, c, r) {
     ) %>% 
     bind_rows()
   
- 
   
- frontier_data <- map(
-    countries,
-    suffering_frontier,
-    data = results %>% select(-res4, -res3),
-    r = 'frontier'
+summary_school_inefficiencies %>% 
+  write_rds('stats/summary_inefficiencies.rds')
+ 
+################################################################################ 
+
+summary_lamda <- results %>% 
+  filter(
+    result == 'lamda' 
   ) %>% 
-    map2(
-      .,
-      countries, 
-      function(x,y){
-        x %>% 
-          mutate(country = y) %>% 
-          relocate(country)
-      }
-    ) %>% 
-    bind_rows()
-
- input_data <- data %>% 
-   select(
-     CNT, 
-     all_of(inputs)
-   ) %>% 
-   pivot_longer(total_students:ratio_ft2pt, names_to = 'input', values_to = 'in_val')
- 
- input_data %>% 
-   filter(input == 'total_students') %>% 
-   na.omit()
-   left_join(
-     frontier_data %>% na.omit(),
-     by =c("CNT" = "country")
-   )
-   ggplot(
-      aes(
-        y = in_val
-      )
-   )+
-   geom_point(
-     data = frontier_data %>% filter(country == 'pol'),
-     aes(
-       x = value
-     )
-   ) + 
-   facet_grid(model ~ input)
-
- frontier_data 
+  select(- c(res3, res4)) %>% 
+  pivot_longer(res1:res2) %>% 
+  unnest(value) %>% 
+  mutate(
+    result = rep(c("z1", "z2"), 8)
+  ) %>% 
+  relocate(country) %>% 
+  pivot_wider(names_from = result) %>% 
+  rename(model = "name")
 
 
+summary_lamda %>% 
+  write_rds("stats/summary_lamda.rds")
+
+
+################################################################################
+
+#### meta summary
+
+
+tmp <- results %>% 
+  filter(result == "technical_inefficiency") %>% 
+  select(-result) %>% 
+  pivot_longer(res1:res4, names_to = "model") %>% 
+  unnest(value) %>% 
+  mutate(
+    value = case_when(
+      model == "res1" ~ 2 - value,
+      model == "res2" ~ 2 - value,
+      model == "res3" ~ value,
+      model == "res4" ~ value
+    )
+  ) %>% 
+  ggplot()+
+  stat_ecdf(
+    aes(
+      x = value
+    )
+  )+ 
+  facet_grid(country ~ model)
+
+tmp %>% 
+  write_rds("stats/cumulative_inefficiency_country.rds")
 
 
 
+################################################################################
+### meta beta
 
+meta_beta_summary <- meta %>% 
+  filter(result == "beta") %>% 
+  select(- result) %>% 
+  pivot_longer(res1_all:res4_all, names_to = "model") %>% 
+  unnest(value) %>% 
+  group_by(model) %>% 
+  summarise(
+    across(
+      V1:V4,
+      mean
+    )
+  )
+
+colnames(meta_beta_summary)[2:5] <- inputs
+
+
+meta_beta_summary %>% 
+  write_rds("stats/meta_beta_summary.rds")
+
+
+####################
+# meta ineffciencies
+
+meta_inefficiency <- meta %>% 
+  filter(result == "technical_inefficiency") %>% 
+  select(- result) %>% 
+  pivot_longer(everything(), names_to = 'model') %>% 
+  unnest(value) %>% 
+  mutate(
+    value = case_when(
+      model == "res1_all" ~ 2 - value,
+      model == "res2_all" ~ 2 - value,
+      model == "res3_all" ~ value,
+      model == "res4_all" ~ value
+    )
+  ) %>% 
+  group_by(model) %>% 
+  summarise(mean = mean(value), sd = sd(value))
   
 
+meta_inefficiency %>% 
+  write_rds('stats/meta_inefficiency_summary.rds')
+
+
+#######################
+# meta lamdas 
+
+meta_lamda <- meta %>% 
+  filter(result == "lamda") %>% 
+  select(- result) %>% 
+  pivot_longer(everything(), names_to = 'model') %>% 
+  filter(model %in% c("res1_all", "res2_all")) %>% 
+  unnest(value) %>% 
+  mutate(
+    variable = rep(c("z1", "z2"), 2)
+  ) %>% 
+  pivot_wider(names_from = variable)
+
+meta_lamda %>% 
+  write_rds("stats/meta_lamda.rds")
+
+###############################
+# meta cumulative inefficiency 
+
+meta %>% 
+  filter(result == "technical_inefficiency") %>% 
+  select(- result) %>% 
+  pivot_longer(everything(), names_to = 'model') %>% 
+  unnest(value) %>% 
+  mutate(
+    value = case_when(
+      model == "res1_all" ~ 2 - value,
+      model == "res2_all" ~ 2 - value,
+      model == "res3_all" ~ value,
+      model == "res4_all" ~ value
+    )
+  ) %>% 
+  group_by(model) %>% 
+  ggplot() +
+  stat_ecdf(
+    aes(
+      x = value
+    )
+  )+
+  facet_grid(model~.)+
+  labs(
+    title = "Cumulative distribution of the inefficiency estimate per model",
+    x = "inefficiency level",
+    y = "CDF"
+  ) %>% 
+  write_rds("stats/cumulative_meta.rds")
