@@ -37,7 +37,7 @@ In the next chapter we use nonparametric envelopment techniques to estimate a pr
 
 ## Data
 
-Data is extracted from the 2018 PISA survey, it contains information on schools (and their environments), teachers, and students (and parental engagement). Data analysis and exploration, visualisation was done in R, while the frontiers were estimated in Python.
+Data is extracted from the 2018 PISA survey, it contains information on schools (and their environments), teachers, and students (and parental engagement). Data analysis and exploration, visualisation was done in R, while the frontiers were estimated in Python. In this section we summarise and interpret our data mainly using graphical methods. We show the relationship of the variables we use later in the StoNED models.
 
 ### Summary statistics of the data
 
@@ -51,25 +51,29 @@ data <- read_csv("../../modeling/analysis_data.csv") %>%
  
 ```
 
-Our sample is constituted of 623 schools decomposed per the table below.
+Our sample is constituted of 623 schools from the V4 countries decomposed per the table below. Data is gathered on an individual level, so the first task was to aggregate that to a school level. This was done in two different ways: taking means and medians of the individual level results for each of the schools. Medians are more robust statistics of the central tendency, and not influenced so much by outliers. The models below were estimated using both summaries, but there were no big differences, so we just highlight results from the models using the mean.
 
-```{r, echo=F, warning=FALSE, message=FALSE}
+```{r, echo=F, warning=FALSE, message=FALSE, fig.pos="center"}
 data %>% 
-  group_by(CNT) %>% 
+  group_by(country = CNT) %>% 
   count() %>% 
   kableExtra::kable(format = "latex", booktab = T) 
 
 ```
 
-The variables we initially decided to use are the following:
+The variables and their names we initially decided to use based on the existing literature are the following:
+
+NEED TO CLEAR THIS A BIT, redundant? It should match table of means!!!
 
 -   Students:
 
-    -   `total_sudents`
+    -   total number of students: `total_sudents`
 
-    -   gender characteristics : ``` students_male (number of),``students_female (number of) ```
+    -   gender characteristics: `students_male (number of)/students_female (number of)` THIS IS ALSO THERE FOR SCHOOLs???
 
-    -   Parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education)
+    -   parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education) IS THIS STUDENT OR SCHOOL LEVEL DATA?
+    
+    - MATH, READ, SCIENCE RESUTLS?
 
 -   Schools:
 
@@ -77,21 +81,21 @@ The variables we initially decided to use are the following:
 
 -   Teachers:
 
-    -   `teachers_ft`(number of full timer teachers), `teachers_pt` (number of full timer teachers)
+    -   number of full and part time teachers: `teachers_ft`, `teachers_pt`
 
     -   `total_teachers` : Total number of teachers
 
 -   Context:
 
-    -   Location `bol_locataion` : 1- school is in Urban area, 0- School is in Rural area
+    -   Location (`bol_locataion`): 1 - School is in Urban area, 0 - School is in Rural area
 
-    -   Extra activities : `bol_extra_acts` : 1- Yes there are official extra activities in the curricilum, 0- No
+    -   Extra activities (`bol_extra_acts`): 1 - Yes there are official extra activities in the curricilum, 0 - No
 
-    -   `bol_competition` : 1- There's at least another school in the area, 0- There's no other schools in the area
+    -   Competition (`bol_competition`): 1 - There's at least another school in the area, 0 - There's no other schools in the area
 
-    -   `bol_career_guidance` : 1- There's an official career guidance curriculum in the school, 0- There's not
+    -   Career guidance (`bol_career_guidance`): 1 - There's an official career guidance curriculum in the school, 0 - There's not
 
-Mean and standard deviation tables for each variable per country is depicted as follows:
+Mean and standard deviation (DO WE NEED STDEV, can stay, but I woundt write about it!!!) tables for each variable per country is depicted as follows:
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
@@ -110,7 +114,7 @@ data %>%
   pivot_wider(names_from = CNT) %>% 
   kableExtra::kable(
     booktab = T, 
-    caption = "Table of means", 
+    caption = "Means of variables for each of the countries", 
     digits = 3
   )
 
@@ -131,12 +135,18 @@ data %>%
   pivot_wider(names_from = CNT) %>% 
   kableExtra::kable(
     booktab = T, 
-    caption = "Table of standard deviation",
+    caption = "Standard deviations of variables for each of the countries",
     digits = 3
   )
 ```
 
+Based on the summary values we can see, that Poland has the highest proportion of urban schools in the sample (47%) whereas Hungary the lowest (only 21%). Official extra activities are so widely available that almost all institutions responded with yes, we can conclude that probably there is not enough variance in the data to find any effect in the models. Proportion of competing schools are similar across countries, however career guidance proportions are varying between 38% (Poland) and 72% (Czech Republic). Dropout rates are relatively low, but highest in the Czech Republic.
+
+FUNDING IS IN TABLE BUT NOT EARLIER!
+
 ### Visualisations
+
+In this subsection we discover the patterns in the data using visual techniques. The following chart shows the average results in the three tests for each country, grouped by location. We can see some extreme outliers in almost all cases. Urban schools seem to slightly outperform rural schools in math scores in Hungary, but the opposite seems to be the situation in Slovak Republic. Interestingly science score on average are higher in rural located schools in general. Heterogeneity in terms of interquartile range is usually larger for urban schools, while rural school averages are more similar to each other. This seems to be the case for all V4 countries and all subjects. (Note that results are on a log scale!)
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 
@@ -148,7 +158,8 @@ data %>%
     names_to = 'avg'
   ) %>% 
   mutate(
-    bol_location = as.character(bol_location)
+    bol_location = as.character(bol_location),
+    value = log(value)
   ) %>% 
   ggplot()+
   geom_boxplot(
@@ -158,14 +169,17 @@ data %>%
       fill = avg
     )
   )+
-  facet_grid(CNT~avg, scale = "free")+
+  facet_grid(CNT~avg, scale = "free_x")+
   labs(
-    title = "Average grad in the three subjects\n controlled by location",
-    x = "Average grade",
+    title = "Average grades in the three subjects",
+    subtitle = "Controlled by location",
+    x = "log(Average grade)",
     y = "Location"
   )
   
 ```
+
+Next we checked for differences in terms of competition and performance. It seems to be evident that if institutions stated that there is competition, average results are better or similar. This conclusion holds through all countries and subjects as can be seen on the following graph.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
@@ -190,12 +204,14 @@ data %>%
   )+
   facet_grid(CNT~avg, scale = "free") +
   labs(
-    title = "Average grades and Competition of school area",
-    subtitle = "Controlled by subject",
-    x = "Average grade",
-    y = "Competion"
+    title = "Average grades in the three subjects",
+    subtitle = "Controlled by competition",
+    x = "log(Average grade)",
+    y = "Competition"
   )
 ```
+
+Career guidance might improve grades on its own as well, but it also shows how important it is for the schools to develop their students' abilities according to their needs. Our data does not show a systematic relationship between performance (grades) and career guidance availability. Guidance might help and has an influence on later success of students, not the actual observable scores achieved.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
@@ -207,7 +223,8 @@ data %>%
     names_to = 'avg'
   ) %>% 
   mutate(
-    bol_career_guidance = as.character(bol_career_guidance)
+    bol_career_guidance = as.character(bol_career_guidance),
+    value = log(value)
   ) %>% 
   ggplot()+
   geom_boxplot(
@@ -219,11 +236,14 @@ data %>%
   )+
   facet_grid(CNT~avg, scale = "free")+
   labs(
-    title = "Average grades and Career guidance",
-    x = 'Average Grade',
-    y = 'Formal Guidance'
+    title = "Average grades in the three subjects",
+    subtitle = "Controlled by career guidance",
+    x = 'log(Average Grade)',
+    y = 'Career Guidance'
   )
 ```
+
+Student to teachers ratios are one way to measure the quality of teaching. In general we observe low ratios in Polish schools, compared to the other three countries. In general, lower ratios indicate a somewhat better average result, however, the strength of the relationship seems to be weak. 
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
@@ -236,17 +256,17 @@ data %>%
   ggplot()+
   geom_point(
     aes(
-      x = value,
+      x = log(value),
       y = ratio_s2t,
       color = avg
     ),
     size = 0.1,
     alpha = 0.7
   )+
-  facet_grid(CNT~avg, scale = "free")+
+  facet_grid(CNT~avg, scale = "free_x")+
   labs(
-    title = 'Averge Grades by the Students to Teacher Ratio',
-    x = "Average Grades",
+    title = 'Averge grades by the Students to Teacher Ratio',
+    x = "Average Grade",
     y = "Students to Teacher Ratio"
   )
 ```
@@ -455,3 +475,5 @@ read_rds("../../stats/cumulative_inefficiency_country.rds")
 
 read_rds("../../stats/cumulative_meta.rds")
 ```
+
+## References
