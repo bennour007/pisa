@@ -1,4 +1,257 @@
 {
-    "sources": [],
+    "sources": [
+        {
+            "author": [
+                {
+                    "family": "Kuosmanen",
+                    "given": "Timo"
+                },
+                {
+                    "family": "Kortelainen",
+                    "given": "Mika"
+                }
+            ],
+            "container-title": "Journal of productivity analysis",
+            "id": "kuosmanen2012",
+            "issued": {
+                "date-parts": [
+                    [
+                        2012
+                    ]
+                ]
+            },
+            "page": "11-28",
+            "publisher": "Springer",
+            "title": "Stochastic non-smooth envelopment of data: Semi-parametric frontier estimation subject to shape constraints",
+            "title-short": "Stochastic non-smooth envelopment of data",
+            "type": "article-journal",
+            "volume": "38"
+        },
+        {
+            "author": [
+                {
+                    "family": "Kuosmanen",
+                    "given": "Timo"
+                },
+                {
+                    "family": "Johnson",
+                    "given": "Andrew L"
+                }
+            ],
+            "container-title": "Operations Research",
+            "id": "kuosmanen2010",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2010
+                    ]
+                ]
+            },
+            "page": "149-160",
+            "publisher": "INFORMS",
+            "title": "Data envelopment analysis as nonparametric least-squares regression",
+            "type": "article-journal",
+            "volume": "58"
+        },
+        {
+            "author": [
+                {
+                    "family": "Kuosmanen",
+                    "given": "Timo"
+                },
+                {
+                    "family": "Johnson",
+                    "given": "Andrew"
+                },
+                {
+                    "family": "Saastamoinen",
+                    "given": "Antti"
+                }
+            ],
+            "container-title": "Data Envelopment Analysis: A Handbook of Models and Methods",
+            "id": "kuosmanen2015",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "page": "191-244",
+            "publisher": "Springer",
+            "title": "Stochastic nonparametric approach to efficiency analysis: A unified framework",
+            "title-short": "Stochastic nonparametric approach to efficiency analysis",
+            "type": "article-journal"
+        },
+        {
+            "author": [
+                {
+                    "family": "Lafuente",
+                    "given": "Esteban"
+                },
+                {
+                    "family": "Ács",
+                    "given": "Zoltán J"
+                },
+                {
+                    "family": "Szerb",
+                    "given": "László"
+                }
+            ],
+            "container-title": "Journal of Small Business Management",
+            "id": "lafuente2022",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022
+                    ]
+                ]
+            },
+            "page": "1-45",
+            "publisher": "Taylor & Francis",
+            "title": "Analysis of the digital platform economy around the world: A network DEA model for identifying policy priorities",
+            "title-short": "Analysis of the digital platform economy around the world",
+            "type": "article-journal"
+        },
+        {
+            "DOI": "10.1186/s40536-022-00147-3",
+            "ISSN": "2196-0739",
+            "URL": "https://doi.org/10.1186/s40536-022-00147-3",
+            "abstract": "School-level inefficiencies and mismanagement can have serious repercussions for human resource development and labor market outcomes. This paper investigates the extent and consequences of existing technical inefficiency of schools with respect to their resource- and people-management aspects at a cross-country level across Organisation for Economic Cooperation and Development (OECD) and the Middle East and North Africa (MENA) regions. It employs a non-radial Data Envelopment Analysis (DEA) alongside a second stage Tobit regression model using datasets in the latest Trends in International Mathematics and Science Study (TIMSS) 2019. The analysis covers 5164 schools across 26 countries. In the first stage of DEA analysis, it is evident that technical inefficiencies exist similarly across schools of both OECD and MENA nations, irrespective of the method used for efficiency calculation. While availability of educational resources is a necessary condition for improving learning outcomes, it is surely not sufficient. In the second stage of the Tobit regression, the model confirms that improved utilization of the existing resources through better educational management systems can yield higher cognitive achievement at the school-level. The empirical findings also reveal that discipline maintained within the student body at school is one of the most important and significant factors associated with higher school level input- and output-efficiency across both MENA and OECD regions. Moreover, different aspects of people management, particularly target setting, student as well as teacher motivation, and parental involvement in school management are found to be positively associated with school-level technical efficiency across the two regions, albeit in varying degrees. Overall, educational management policies should shift focus from solely providing higher quantity of resources to improving the technical efficiency of schools through enhanced school-level management, by encouraging disciplinary action, as well as by supporting stakeholder incentives that foster motivation and participation.",
+            "author": [
+                {
+                    "family": "Bhutoria",
+                    "given": "Aditi"
+                },
+                {
+                    "family": "Aljabri",
+                    "given": "Nayyaf"
+                }
+            ],
+            "container-title": "Large-scale Assessments in Education",
+            "id": "Bhutoria2022",
+            "issue": "1",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022,
+                        12,
+                        19
+                    ]
+                ]
+            },
+            "page": "24",
+            "title": "Managerial practices and school efficiency: A data envelopment analysis across OECD and MENA countries using TIMSS 2019 data",
+            "title-short": "Managerial practices and school efficiency",
+            "type": "article-journal",
+            "volume": "10"
+        },
+        {
+            "DOI": "10.1007/978-81-322-2253-8",
+            "URL": "https://ideas.repec.org/h/spr/sprchp/978-81-322-2253-8_3.html",
+            "abstract": "This chapter describes the economic insights of the unifying framework known as Stochastic semi-Nonparametric Envelopment of Data (StoNED), which combines the virtues of the widely used neoclassic production models, Data Envelopment Analysis (DEA), and Stochastic Frontier Analysis (SFA). Like DEA, StoNED is able to estimate an axiomatic production function relaxing the functional form specification required in most implementations of SFA. However, StoNED is also consistent with the econometric models of noise, providing a distinct advantage over standard DEA models. Further, StoNED allows for the possibility that systematic inefficiency is negligible consistent with neoclassical theory, thus providing a unifying framework. StoNED is implemented by estimating a conditional mean using convex nonparametric least squares (CNLS) followed by using standard SFA techniques to estimate the average efficiency and decompose the residual. Detailed descriptions of General Algebraic Modeling System (GAMS) and matrix laboratory (MATLAB) code will aid readers in implementing the StoNED estimator.",
+            "author": [
+                {
+                    "family": "Johnson",
+                    "given": "Andrew L."
+                },
+                {
+                    "family": "Kuosmanen",
+                    "given": "Timo"
+                }
+            ],
+            "chapter-number": "0",
+            "collection-number": "",
+            "collection-title": "Springer books",
+            "container-title": "Benchmarking for Performance Evaluation",
+            "edition": "",
+            "editor": [
+                {
+                    "family": "Ray",
+                    "given": "Subhash C."
+                },
+                {
+                    "family": "Kumbhakar",
+                    "given": "Subal C."
+                },
+                {
+                    "family": "Dua",
+                    "given": "Pami"
+                }
+            ],
+            "id": "kous2015",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "keyword": "Efficiency; Quadratic programming (QP); Data envelopment analysis (DEA); Frontier estimation; Produc",
+            "page": "117-186",
+            "publisher": "Springer",
+            "title": "An Introduction to CNLS and StoNED Methods for Efficiency Analysis: Economic Insights and Computational Aspects",
+            "type": "chapter",
+            "volume": ""
+        },
+        {
+            "DOI": "10.1057/jors.2015.92",
+            "URL": "https://doi.org/10.1057/jors.2015.92",
+            "author": [
+                {
+                    "family": "Witte",
+                    "given": "Kristof De"
+                },
+                {
+                    "family": "López-Torres",
+                    "given": "Laura"
+                }
+            ],
+            "container-title": "Journal of the Operational Research Society",
+            "id": "Witte2017",
+            "issue": "4",
+            "issued": {
+                "date-parts": [
+                    [
+                        2017
+                    ]
+                ]
+            },
+            "page": "339-363",
+            "publisher": "Taylor & Francis",
+            "title": "Efficiency in education: A review of literature and a way forward",
+            "title-short": "Efficiency in education",
+            "type": "article-journal",
+            "volume": "68"
+        },
+        {
+            "author": [
+                {
+                    "family": "Pelle",
+                    "given": "Anita"
+                },
+                {
+                    "family": "Kuruczleki",
+                    "given": "Éva"
+                }
+            ],
+            "container-title": "Rocznik Instytutu Europy Środkowo-Wschodniej",
+            "id": "pelle2016",
+            "issue": "4 Re-thinking the OECD’s Role in Global Governance: Members, Policies, Influence",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016
+                    ]
+                ]
+            },
+            "page": "173-207",
+            "title": "Education policies and performance of the visegrad countries in light of their OECD membership: A comparative study",
+            "title-short": "Education policies and performance of the visegrad countries in light of their OECD membership",
+            "type": "article-journal",
+            "volume": "14"
+        }
+    ],
     "project_biblios": []
 }

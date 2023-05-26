@@ -19,7 +19,7 @@ In some empirical applications, researchers often seek to analyze the performanc
 
 Educational institutions can be considered (from an economic point of view) as production units (DMUs), and can be evaluated in terms of efficiency. Efficiency can be analyzed from various perspectives. School-level inefficiencies and mismanagement can have serious repercussions for human resource development and labor market outcomes as a recent study [@Bhutoria2022] highlights.
 
-There are many papers that are measuring the efficiency within the sector of education, see for example the excellent review of @Witte2017. To the best of our knowledge, no paper among these concentrates on the Visegrad (V4) countries, although the countries are historically linked and followed similar development paths and it seems useful to compare their education policies and performance (CITE: https://www.researchgate.net/publication/308994770_Education_policies_and_performance_of_the_Visegrad_countries_in_light_of_their_OECD_membership_a\_comparative_study) In this paper we focus on answering the question of what drives the efficiency of schools in the Visegrad countries in terms of standardized test performance? The efficiency analysis will be based on PISA 2018 data and the novel StoNED framework.
+There are many papers that are measuring the efficiency within the sector of education, see for example the excellent review of @Witte2017. To the best of our knowledge, no paper among these concentrates on the Visegrad (V4) countries, although the countries are historically linked and followed similar development paths and it seems useful to compare their education policies and performance @pelle2016. In this paper we focus on answering the question of what drives the efficiency of schools in the Visegrad countries in terms of standardized test performance? The efficiency analysis will be based on PISA 2018 data and the novel StoNED framework.
 
 ## Methods
 
@@ -158,7 +158,7 @@ data %>%
       fill = avg
     )
   )+
-  facet_grid(CNT~avg)+
+  facet_grid(CNT~avg, scale = "free")+
   labs(
     title = "Average grad in the three subjects\n controlled by location",
     x = "Average grade",
@@ -188,7 +188,7 @@ data %>%
       fill = avg
     )
   )+
-  facet_grid(CNT~avg) +
+  facet_grid(CNT~avg, scale = "free") +
   labs(
     title = "Average grades and Competition of school area",
     subtitle = "Controlled by subject",
@@ -217,7 +217,7 @@ data %>%
       fill = avg
     )
   )+
-  facet_grid(CNT~avg)+
+  facet_grid(CNT~avg, scale = "free")+
   labs(
     title = "Average grades and Career guidance",
     x = 'Average Grade',
@@ -243,7 +243,7 @@ data %>%
     size = 0.1,
     alpha = 0.7
   )+
-  facet_grid(CNT~avg)+
+  facet_grid(CNT~avg, scale = "free")+
   labs(
     title = 'Averge Grades by the Students to Teacher Ratio',
     x = "Average Grades",
@@ -270,7 +270,7 @@ data %>%
     size = 0.1,
     alpha = 0.7
   )+
-  facet_grid(CNT~avg) +
+  facet_grid(CNT~avg, scale = "free") +
   labs(
     title = 'Total Number of Students and Average grades',
     x = 'Average Grade',
@@ -302,7 +302,7 @@ data %>%
     size = 0.2,
     alpha = 0.7
   ) +
-  facet_grid(CNT~.) +
+  facet_grid(CNT~., scale = "free") +
   labs(
     title = "Total Number of Students and Total Number of Teachers",
     subtitle = "Controlled by Part time and Full time employment types", 
@@ -411,4 +411,47 @@ data %>%
 
 ```
 
-Results and discussion
+## Results and discussion
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/summary_beta.rds")
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/meta_beta_summary.rds")
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+  read_rds("../../stats/summary_lamda.rds")
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+  read_rds("../../stats/meta_lamda.rds")
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/summary_inefficiencies.rds")
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/meta_inefficiency_summary.rds")
+
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/cumulative_inefficiency_country.rds")
+```
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/cumulative_meta.rds")
+```
