@@ -232,8 +232,8 @@
                     "given": "Anita"
                 },
                 {
-                    "family": "Kuruczleki",
-                    "given": "Éva"
+                    "dropping-particle": "Éva",
+                    "family": "Kuruczleki"
                 }
             ],
             "container-title": "Rocznik Instytutu Europy Środkowo-Wschodniej",

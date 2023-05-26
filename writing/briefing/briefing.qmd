@@ -72,8 +72,8 @@ NEED TO CLEAR THIS A BIT, redundant? It should match table of means!!!
     -   gender characteristics: `students_male (number of)/students_female (number of)` THIS IS ALSO THERE FOR SCHOOLs???
 
     -   parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education) IS THIS STUDENT OR SCHOOL LEVEL DATA?
-    
-    - MATH, READ, SCIENCE RESUTLS?
+
+    -   MATH, READ, SCIENCE RESUTLS?
 
 -   Schools:
 
@@ -243,7 +243,7 @@ data %>%
   )
 ```
 
-Student to teachers ratios are one way to measure the quality of teaching. In general we observe low ratios in Polish schools, compared to the other three countries. In general, lower ratios indicate a somewhat better average result, however, the strength of the relationship seems to be weak. 
+Student to teachers ratios are one way to measure the quality of teaching. In general we observe low ratios in Polish schools, compared to the other three countries. In general, lower ratios indicate a somewhat better average result, however, the strength of the relationship seems to be weak.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
@@ -433,47 +433,104 @@ data %>%
 
 ## Results and discussion
 
+In this section we will elaborate on the different results of the models, and provide a brief discussion. However, it is important to note that not all StoNED models results are relevant, in fact in our case we focus mainly on assessing the inefficiencies and the contextual variables, other results such as the inputs or the outputs coefficients from the CNLS QP problem are not of interest in the case of the production frontier as its not clear on how to interpret them, but can be so in the case of cost frontier where they can be interpreted as elasticities. Also it's important to note that our approach for the the visegrad sample data does not assume any differences between countries and thus no specific changes to the models were conducted. @sipilainen2008measuring provided a through explanation of the meta frontier approach with StoNED.
+
+In the tables below country names are abbreviated to the ISO 3166method. As for the models, the model columns will contain the word `res` (for result) followed by the number of the model as per the methodology section.
+
+#### Inefficiencies
+
+For the inefficiencies we can see in Table 3 the average school-specific deviation from the frontier per country and model. None of the schools are 100% efficient, which raises the question on how to optimize the quantifiable and observable processes to mitigate such issue. We can notice that for models 3 and 4 the average inefficiencies are almost similar which suggests that the incorporation of the Dropout rates as undesirable output(in model) might not have an effect on the inefficiencies especially as this variable is presented with low variance within, and across countries. However this still might be an interesting approach to investigate in the case of less developed countries such us the study in @yahia.
+
+We can also notice that model 2 (with variable returns to scale) always yields higher estimates of inefficiencies across countries than model 1 (with constant returns to scale)
+
 ```{r,echo = F, warning=FALSE, message=FALSE}
 
-read_rds("../../stats/summary_beta.rds")
+read_rds("../../stats/summary_inefficiencies.rds") %>% 
+  kableExtra::kable(booktab = T, 
+                    caption = "Summary statistics of firm specific inefficiencies by model and country", 
+                    digits = 4) %>% 
+  kableExtra::kable_styling(position = "center")
+
+```
+
+The results associated with "meta" across country analysis in Table 4 also suggests that there isn't any clear difference between model 4 and 3 thus using the dropout rate as an undesirable output. Moreover, models 2 and 1 overestimate inefficiency with the presence of contextual variables.
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/meta_inefficiency_summary.rds") %>% 
+  kableExtra::kable(booktab = T, 
+                    caption = "Summary statistics of firm specific meta inefficiencies by model", 
+                    digits = 4) %>% 
+  kableExtra::kable_styling(position = "center")
+
+```
+
+#### Contextual variables
+
+The contextual variables employed in model 1 and 2 are the Booleans `Z1` : competition (to control the existence of other competing institutions in the same are) and `Z2` : location (to control for the effect of Urban vs Rural location).
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+  read_rds("../../stats/summary_lamda.rds") %>% 
+    kableExtra::kable(booktab = T, 
+                      caption = "Contextual variables coefficients from Model 1 and 2 by country",  
+                      digits = 4) %>% 
+  kableExtra::kable_styling(position = "center")
+```
+
+In Table 5 we can see that model 1 in all cases overestimate the coefficients. This is also true in the case of the cross country models. In fact we can say that Competition can increase the Averaged grades by 9.7 points (model 1) or 1.04 points (model 2), additionaly Urban schools are expected to have an increase of 5.9 points (model1) or a decrease of 0.16 points (model 2).
+
+Of course these results seems inconsistent and might be the lead for further investigation especially for testing the returns to scale, constructing confidence intervals and significance levels of the variables.
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+  read_rds("../../stats/meta_lamda.rds") %>% 
+    kableExtra::kable(booktab = T, 
+                      caption = "Contextual variables meta coefficients from Model 1 and 2 for all countries",
+                      digits = 4) %>% 
+  kableExtra::kable_styling(position = "center")
+
+```
+
+#### Cumulative meta-inefficiencies
+
+following the spirit of @kuosmanen2012_2 we constructed the cumulative inefficiency density plot in Figure, where we can see that most schools are highly inefficient.
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/cumulative_meta.rds") %>% 
+  ggplot() +
+  stat_ecdf(
+    aes(
+      x = value
+    )
+  )+
+  facet_grid(model~.)+
+  labs(
+    title = "Cumulative distribution of the inefficiency estimate per model",
+    x = "inefficiency level",
+    y = "CDF"
+  )
+```
+
+## Other tables
+
+```{r,echo = F, warning=FALSE, message=FALSE}
+
+read_rds("../../stats/summary_beta.rds") %>% 
+  kableExtra::kable(booktab = T, 
+                    caption = "Mean statistic of the firm specific coefficients (model by country)", 
+                    digits = 4 ) %>% 
+  kableExtra::kable_styling(position = "center")
 
 ```
 
 ```{r,echo = F, warning=FALSE, message=FALSE}
 
-read_rds("../../stats/meta_beta_summary.rds")
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-  read_rds("../../stats/summary_lamda.rds")
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-
-  read_rds("../../stats/meta_lamda.rds")
-
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-
-read_rds("../../stats/summary_inefficiencies.rds")
-
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-
-read_rds("../../stats/meta_inefficiency_summary.rds")
-
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-
-read_rds("../../stats/cumulative_inefficiency_country.rds")
-```
-
-```{r,echo = F, warning=FALSE, message=FALSE}
-
-read_rds("../../stats/cumulative_meta.rds")
+read_rds("../../stats/meta_beta_summary.rds")%>% 
+  kableExtra::kable(booktab = T, 
+                    caption = "Mean statistic of the firm specific coefficients of the meta frontier model(all countries)", 
+                    digits = 4) %>% 
+  kableExtra::kable_styling(position = "center")
 ```
 
 ## References
