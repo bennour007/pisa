@@ -21,31 +21,62 @@ Educational institutions can be considered (from an economic point of view) as p
 
 There are many papers that are measuring the efficiency within the sector of education, see for example the excellent review of @Witte2017. To the best of our knowledge, no paper among these concentrates on the Visegrad (V4) countries, although the countries are historically linked and followed similar development paths and it seems useful to compare their education policies and performance @pelle2016. In this paper we focus on answering the question of what drives the efficiency of schools in the Visegrad countries in terms of standardized test performance? The efficiency analysis will be based on PISA 2018 data and the novel StoNED framework.
 
-## Methods
+## Methodology
 
 The early literature provided two major directions in performance analysis. The first is the "Stochastic Frontier Analysis" (SFA). The second direction is the non-parametric approach, leading to the development of "Data Envelopment Analysis" (DEA) and "Full Disposal Hull" (FDH). DEA and FDH gained a large theoretical and empirical literature grounds since they were introduced (DEA and FDH are considered the same technique, they are usually both referred to as DEA).
 
-Both approaches have clear advantages and disadvantages. The main shortcoming of DEA is that all deviations from the frontier are treated as inefficiency. The strength of SFA is its probabilistic nature. It allows for decomposing deviations into an inefficiency term and noise term. However development on convex nonparametric least squares (CNLS) have led to the full integration of DEA and SFA into a unified framework of productivity analysis, which we refer to as Stochastic Nonparametric Envelopment of Data (StoNED). @kous2015
+Both approaches have clear advantages and disadvantages. The main shortcoming of DEA is that all deviations from the frontier are treated as inefficiency. The strength of SFA is its probabilistic nature. It allows for decomposing deviations into an inefficiency term and noise term. However development on convex nonparametric least squares (CNLS) have led to the full integration of DEA and SFA into a unified framework of productivity analysis, which is refered to as Stochastic Nonparametric Envelopment of Data (StoNED). @kous2015
 
-Formulation of a StoNED model requires identifying input, output and enviromnetal variables, and solving an optimization algorithm, depending on various possible assumptions.
+Formulation of a StoNED model requires identifying input, output and environmental variables, and solving an optimization algorithm, depending on various possible assumptions. In this paper we will use four variations of the StoNED Framework:
 
-SOME UGLY ASS EQUATIONS MAYBE?
+-   Model 1 : CNLS estimation with contextual variables and constant returns to scale ($\beta_i = \boldsymbol{1}$).
 
-Creators of the StoNED framework provide GAMS and MATLAB code originally, there exists a Python package (REFERENCE) for implementing different models.
+    -   one input, multiple outputs
 
-In the next chapter we use nonparametric envelopment techniques to estimate a production (education) frontier for each Visegrad country, and for the region as a whole (metafrontier what he called it?).
+-   Model 2 : CNLS estimation with contextual variables and variable returns to scale ($\beta_i \geq \boldsymbol{0}$)
+
+    -   one input, multiple outputs
+
+        the following Program(with VRS ($\beta_i \geq \boldsymbol{0}$)) represent the two models with the only difference being in the last constraint.
+
+        ![](m2_vrs.png){width="387"}
+
+-   Model 3 : CNLS estimation with Directional Distance Function
+
+    -   multiple inputs and outputs
+
+    -   undesirable inputs
+
+    -   ![](m3.png)
+
+-   Model 4 : CNLS estimation with Directional Distance Function
+
+    -   multiple inputs and outputs
+
+    -   ![](m4.png){width="522"}
+
+Moreover the 3rd and 4th models are basically the same with the only difference regarding the specification of the Directional Vector $g = (x,y,gx,gy)$, in model 3 we construct the vector to simultaneously increase outputs and decrease undesirable outputs $g_{m3} = (x,y,b, g_x = 0, g_y = 1, g_b = -1)$ while for model 4 we simply ignore the undesirable output specification as in $g_{m4} = (x,y, g_x = 0, g_y = 1)$
+
+@kuosmanen2010 provide GAMS and MATLAB code originally, there exists a Python package @dai2021 for implementing different models which is what we used in this paper.
+
+In the next chapter we use nonparametric envelopment techniques to estimate a production (education) frontier for each Visegrad country, and for the region as a whole across the four countries.
 
 ## Data
 
-Data is extracted from the 2018 PISA survey, it contains information on schools (and their environments), teachers, and students (and parental engagement). Data analysis and exploration, visualisation was done in R, while the frontiers were estimated in Python. In this section we summarise and interpret our data mainly using graphical methods. We show the relationship of the variables we use later in the StoNED models.
+Data is extracted from the 2018 PISA survey, it contains information on schools (and their environments), teachers, and students (and parental engagement). Data analysis and exploration, and visualisation was done in R, while the frontiers were estimated in Python. In this section we summarise and interpret our data mainly using graphical methods. We show the relationship of the variables we use later in the StoNED models.
 
 ### Summary statistics of the data
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 library(tidyverse)
+theme_set(theme_bw())
+le_theme <- theme(
+  strip.background = element_rect(colour = "grey", fill = "white"),
+  text = element_text(family = "serif")
+)
 
-data <- read_csv("../../modeling/analysis_data.csv") %>%
+data <- read_csv("../../data_ready/data_ready.csv") %>%
   # read_csv(file = "modeling/analysis_data.csv") %>%
   select(- ends_with("cog"), - starts_with("med"))
  
@@ -53,27 +84,26 @@ data <- read_csv("../../modeling/analysis_data.csv") %>%
 
 Our sample is constituted of 623 schools from the V4 countries decomposed per the table below. Data is gathered on an individual level, so the first task was to aggregate that to a school level. This was done in two different ways: taking means and medians of the individual level results for each of the schools. Medians are more robust statistics of the central tendency, and not influenced so much by outliers. The models below were estimated using both summaries, but there were no big differences, so we just highlight results from the models using the mean.
 
-```{r, echo=F, warning=FALSE, message=FALSE, fig.pos="center"}
+```{r, echo=F, warning=FALSE, message=FALSE}
 data %>% 
   group_by(country = CNT) %>% 
   count() %>% 
-  kableExtra::kable(format = "latex", booktab = T) 
+  kableExtra::kable( booktab = T, 
+                     caption = "Number of observations per country") 
 
 ```
 
 The variables and their names we initially decided to use based on the existing literature are the following:
 
-NEED TO CLEAR THIS A BIT, redundant? It should match table of means!!!
-
 -   Students:
 
     -   total number of students: `total_sudents`
 
-    -   gender characteristics: `students_male (number of)/students_female (number of)` THIS IS ALSO THERE FOR SCHOOLs???
+    -   gender characteristics: `students_male (number of) & students_female (number of)`
 
-    -   parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education) IS THIS STUDENT OR SCHOOL LEVEL DATA?
+    -   parents: `ap_parental_eng` (proportion of parents who engage with the school staff regarding their children education)
 
-    -   MATH, READ, SCIENCE RESUTLS?
+    -   `avg_math` ,`avg_read` , and `avg_science` are the average grades for each respective subject(math, reading and science) for students in each school of the sample
 
 -   Schools:
 
@@ -89,17 +119,17 @@ NEED TO CLEAR THIS A BIT, redundant? It should match table of means!!!
 
     -   Location (`bol_locataion`): 1 - School is in Urban area, 0 - School is in Rural area
 
-    -   Extra activities (`bol_extra_acts`): 1 - Yes there are official extra activities in the curricilum, 0 - No
+    -   Extra activities (`bol_extra_acts`): 1 - Yes there are official extra activities in the curriculum, 0 - No
 
     -   Competition (`bol_competition`): 1 - There's at least another school in the area, 0 - There's no other schools in the area
 
     -   Career guidance (`bol_career_guidance`): 1 - There's an official career guidance curriculum in the school, 0 - There's not
 
-Mean and standard deviation (DO WE NEED STDEV, can stay, but I woundt write about it!!!) tables for each variable per country is depicted as follows:
+Mean table for each variable per country is depicted in table 2.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   summarise(
     across(
@@ -118,31 +148,9 @@ data %>%
     digits = 3
   )
 
-
-data %>%
-  select(-CNTSCHID, -1) %>% 
-  group_by(CNT) %>% 
-  summarise(
-    across(
-      everything(),
-      sd,
-      na.rm = T
-    )
-  ) %>% 
-  pivot_longer(
-    2:ncol(.)
-  ) %>% 
-  pivot_wider(names_from = CNT) %>% 
-  kableExtra::kable(
-    booktab = T, 
-    caption = "Standard deviations of variables for each of the countries",
-    digits = 3
-  )
 ```
 
 Based on the summary values we can see, that Poland has the highest proportion of urban schools in the sample (47%) whereas Hungary the lowest (only 21%). Official extra activities are so widely available that almost all institutions responded with yes, we can conclude that probably there is not enough variance in the data to find any effect in the models. Proportion of competing schools are similar across countries, however career guidance proportions are varying between 38% (Poland) and 72% (Czech Republic). Dropout rates are relatively low, but highest in the Czech Republic.
-
-FUNDING IS IN TABLE BUT NOT EARLIER!
 
 ### Visualisations
 
@@ -151,7 +159,7 @@ In this subsection we discover the patterns in the data using visual techniques.
 ```{r, echo = F, warning=FALSE, message=FALSE}
 
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -167,7 +175,9 @@ data %>%
       x = value,
       y = bol_location,
       fill = avg
-    )
+    ),
+    outlier.size = 0.7,
+    outlier.colour = "grey"
   )+
   facet_grid(CNT~avg, scale = "free_x")+
   labs(
@@ -175,7 +185,7 @@ data %>%
     subtitle = "Controlled by location",
     x = "log(Average grade)",
     y = "Location"
-  )
+  )+ le_theme
   
 ```
 
@@ -183,7 +193,7 @@ Next we checked for differences in terms of competition and performance. It seem
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
 
   pivot_longer(
@@ -200,7 +210,9 @@ data %>%
       x = value,
       y = bol_competition,
       fill = avg
-    )
+    ),
+    outlier.size = 0.7,
+    outlier.colour = "grey"
   )+
   facet_grid(CNT~avg, scale = "free") +
   labs(
@@ -208,14 +220,14 @@ data %>%
     subtitle = "Controlled by competition",
     x = "log(Average grade)",
     y = "Competition"
-  )
+  ) + le_theme
 ```
 
 Career guidance might improve grades on its own as well, but it also shows how important it is for the schools to develop their students' abilities according to their needs. Our data does not show a systematic relationship between performance (grades) and career guidance availability. Guidance might help and has an influence on later success of students, not the actual observable scores achieved.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
 
   pivot_longer(
@@ -232,7 +244,9 @@ data %>%
       x = value,
       y = bol_career_guidance,
       fill = avg
-    )
+    ),
+    outlier.size = 0.7,
+    outlier.colour = "grey"
   )+
   facet_grid(CNT~avg, scale = "free")+
   labs(
@@ -240,14 +254,14 @@ data %>%
     subtitle = "Controlled by career guidance",
     x = 'log(Average Grade)',
     y = 'Career Guidance'
-  )
+  ) + le_theme
 ```
 
 Student to teachers ratios are one way to measure the quality of teaching. In general we observe low ratios in Polish schools, compared to the other three countries. In general, lower ratios indicate a somewhat better average result, however, the strength of the relationship seems to be weak.
 
 ```{r, echo = F, warning=FALSE, message=FALSE}
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -268,12 +282,12 @@ data %>%
     title = 'Averge grades by the Students to Teacher Ratio',
     x = "Average Grade",
     y = "Students to Teacher Ratio"
-  )
+  ) +le_theme
 ```
 
-```{r, echo = F, warning=FALSE, message=FALSE}
+```{r, echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
  
   pivot_longer(
@@ -295,13 +309,13 @@ data %>%
     title = 'Total Number of Students and Average grades',
     x = 'Average Grade',
     y = 'Total Number of Students '
-  )
+  ) + le_theme
 ```
 
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -328,14 +342,14 @@ data %>%
     subtitle = "Controlled by Part time and Full time employment types", 
     x = "Total Number of Students",
     y = "Total Number of Teachers"
-  )
+  ) + le_theme
 
 ```
 
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -361,14 +375,14 @@ data %>%
     title = "Average Grades and Dropout Rates",
     x = "Average Grades",
     y = "Dropout Rates"
-  )
+  ) + le_theme
 
 ```
 
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -394,14 +408,14 @@ data %>%
     title = "Dropout Rates and school/student characteristics",
     x = "Dropout Rates",
     y = ""
-  )
+  ) + le_theme
 
 ```
 
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 data %>% 
-  select(-CNTSCHID, -1) %>% 
+  select(-CNTSCHID) %>% 
   group_by(CNT) %>% 
   pivot_longer(
     starts_with("avg"), 
@@ -427,13 +441,13 @@ data %>%
     title = "Average Grades and Students to teachers Ratio",
     x = "Average Grades",
     y = "Students to teachers Ratio"
-  )
+  ) + le_theme
 
 ```
 
 ## Results and discussion
 
-In this section we will elaborate on the different results of the models, and provide a brief discussion. However, it is important to note that not all StoNED models results are relevant, in fact in our case we focus mainly on assessing the inefficiencies and the contextual variables, other results such as the inputs or the outputs coefficients from the CNLS QP problem are not of interest in the case of the production frontier as its not clear on how to interpret them, but can be so in the case of cost frontier where they can be interpreted as elasticities. Also it's important to note that our approach for the the visegrad sample data does not assume any differences between countries and thus no specific changes to the models were conducted. @sipilainen2008measuring provided a through explanation of the meta frontier approach with StoNED.
+In this section we will elaborate on the different results of the models, and provide a brief discussion. However, it is important to note that not all StoNED models results are relevant, in fact in our case we focus mainly on assessing the inefficiencies and the contextual variables, other results such as the inputs or the outputs coefficients from the CNLS QP problem are not of interest in the case of the production frontier as its not clear on how to interpret them, but can be so in the case of cost frontier where they can be interpreted as elasticities. Also it's important to note that our approach for the the Visegrad sample data does not assume any differences between countries and thus no specific changes to the models were conducted. @sipilainen2008measuring provided a through explanation of the meta frontier approach with StoNED.
 
 In the tables below country names are abbreviated to the ISO 3166method. As for the models, the model columns will contain the word `res` (for result) followed by the number of the model as per the methodology section.
 
@@ -493,7 +507,7 @@ Of course these results seems inconsistent and might be the lead for further inv
 
 #### Cumulative meta-inefficiencies
 
-following the spirit of @kuosmanen2012_2 we constructed the cumulative inefficiency density plot in Figure, where we can see that most schools are highly inefficient.
+following the spirit of @kuosmanen2012_2 we constructed the cumulative inefficiency density plot in Figure, where we can see that most schools are highly inefficient despite the different set ups employed. Model 2 with VRS seems to overestimate efficiency.
 
 ```{r,echo = F, warning=FALSE, message=FALSE}
 
@@ -509,12 +523,11 @@ read_rds("../../stats/cumulative_meta.rds") %>%
     title = "Cumulative distribution of the inefficiency estimate per model",
     x = "inefficiency level",
     y = "CDF"
-  )
+  ) +
+  le_theme
 ```
 
-## Other tables
-
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 read_rds("../../stats/summary_beta.rds") %>% 
   kableExtra::kable(booktab = T, 
@@ -524,7 +537,7 @@ read_rds("../../stats/summary_beta.rds") %>%
 
 ```
 
-```{r,echo = F, warning=FALSE, message=FALSE}
+```{r,echo = F, warning=FALSE, message=FALSE, eval=FALSE}
 
 read_rds("../../stats/meta_beta_summary.rds")%>% 
   kableExtra::kable(booktab = T, 
@@ -532,5 +545,7 @@ read_rds("../../stats/meta_beta_summary.rds")%>%
                     digits = 4) %>% 
   kableExtra::kable_styling(position = "center")
 ```
+
+Despite the use of various set ups and models, most Visegrad schools seem to be highly inefficient. The data we used summarises most the variance in this context as per the literature including @grosskopf2014 and @jones2017. However more effort in capturing the anomalies in the data and determining more methodologically justified model specifications is required.
 
 ## References

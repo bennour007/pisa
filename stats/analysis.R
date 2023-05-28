@@ -1,8 +1,7 @@
 library(tidyverse)
 
 
-# all_results <- read_rds('modeling/results/all_models.rds')
-
+results <- read_rds('modeling/all_results.rds')
   
 meta <- read_rds("modeling/meta_results.rds")
 
@@ -218,16 +217,4 @@ meta %>%
     )
   ) %>% 
   group_by(model) %>% 
-  ggplot() +
-  stat_ecdf(
-    aes(
-      x = value
-    )
-  )+
-  facet_grid(model~.)+
-  labs(
-    title = "Cumulative distribution of the inefficiency estimate per model",
-    x = "inefficiency level",
-    y = "CDF"
-  ) %>% 
   write_rds("stats/cumulative_meta.rds")
